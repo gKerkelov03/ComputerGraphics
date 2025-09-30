@@ -71,28 +71,48 @@ static void key_callback(GLFWwindow* window,
 {
     switch (key)
     {
-        case GLFW_KEY_ESCAPE:
-            /* Close on escape. */
-            glfwSetWindowShouldClose(window, true);
-            break;
-        case GLFW_KEY_X:
-            /* For debugging. */
-            gl_print_error();
-            break;
-        case GLFW_KEY_A:
-            g_model = glm::rotate(g_model,
-                                  glm::radians(5.0f),
-                                  glm::vec3(0.0f, 1.0f, 0.0f));
-            set_model(g_program);
-            break;
-        case GLFW_KEY_D:
-            break;
-        case GLFW_KEY_W:
-            break;
-        case GLFW_KEY_S:
-            break;
-        default:
-            break;
+    case GLFW_KEY_ESCAPE:
+        glfwSetWindowShouldClose(window, true);
+        break;
+
+    case GLFW_KEY_X:
+        gl_print_error();
+        break;
+
+    case GLFW_KEY_A:
+        g_model = glm::rotate(g_model,
+            glm::radians(-5.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f));
+        set_model(g_program);
+        
+        break;
+
+    case GLFW_KEY_D:
+        g_model = glm::rotate(g_model,
+            glm::radians(5.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f));
+        set_model(g_program);
+       
+        break;
+
+    case GLFW_KEY_W:
+        
+        g_model = glm::rotate(g_model,
+            glm::radians(-5.0f),
+            glm::vec3(1.0f, 0.0f, 0.0f));
+        set_model(g_program);
+        break;
+
+    case GLFW_KEY_S:
+        
+        g_model = glm::rotate(g_model,
+            glm::radians(5.0f),
+            glm::vec3(1.0f, 0.0f, 0.0f));
+        set_model(g_program);
+        break;
+
+    default:
+        break;
     }
 }
 
