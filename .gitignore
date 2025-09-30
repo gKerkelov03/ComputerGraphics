@@ -2,10 +2,7 @@
 bin/
 obj/
 
-# Windows
-**/*.vcxproj
-**/*.vcxproj.user
-**/*.vcxproj.filters
+# Visual studio
 .vs/
 
 # Editors
