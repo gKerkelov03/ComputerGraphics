@@ -8,7 +8,6 @@ libs/Makefile
 **/*.make
 
 # Windows
-**/*.sln
 **/*.vcxproj
 **/*.vcxproj.user
 **/*.vcxproj.filters
