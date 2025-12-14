@@ -1,4 +1,4 @@
-#include "glad/glad.h"
+﻿#include "glad/glad.h"
 
 #include "ui.h"
 #include "structs.h"
@@ -30,6 +30,11 @@ static glm::mat4 g_model = glm::mat4(
 static glm::vec3 g_light_pos = glm::vec3(1.0f, 1.0f, 2.0f);
 static glm::vec3 g_light_color = glm::vec3(1.0f); /* White light */
 
+//upr 1 point 6
+static glm::vec3 g_position = glm::vec3(0.0f, 0.0f, 0.0f);
+static glm::vec3 g_rotation = glm::vec3(0.0f, 0.0f, 0.0f); // degrees
+static glm::vec3 g_scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
 /*
  * Forward declarations.
  */
@@ -38,6 +43,23 @@ static void set_view(unsigned int);
 static void set_projection(unsigned int);
 static void set_light_pos(unsigned int);
 static void set_light_color(unsigned int);
+
+//upr 1 point 5
+
+
+    static void update_model_matrix(void)
+    {
+        g_model = glm::mat4(1.0f);
+
+        g_model = glm::translate(g_model, g_position);
+
+        g_model = glm::rotate(g_model, glm::radians(g_rotation.x), glm::vec3(1, 0, 0));
+        g_model = glm::rotate(g_model, glm::radians(g_rotation.y), glm::vec3(0, 1, 0));
+        g_model = glm::rotate(g_model, glm::radians(g_rotation.z), glm::vec3(0, 0, 1));
+
+        g_model = glm::scale(g_model, g_scale);
+    }
+
 
 /*
  * Checks for OpenGL errors.
@@ -79,35 +101,54 @@ static void key_callback(GLFWwindow* window,
         gl_print_error();
         break;
 
+        /* ROTATION */
     case GLFW_KEY_A:
-        g_model = glm::rotate(g_model,
-            glm::radians(-5.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f));
+        g_rotation.y -= 5.0f;
+        update_model_matrix();
         set_model(g_program);
-        
         break;
 
     case GLFW_KEY_D:
-        g_model = glm::rotate(g_model,
-            glm::radians(5.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f));
+        g_rotation.y += 5.0f;
+        update_model_matrix();
         set_model(g_program);
-       
         break;
 
     case GLFW_KEY_W:
-        
-        g_model = glm::rotate(g_model,
-            glm::radians(-5.0f),
-            glm::vec3(1.0f, 0.0f, 0.0f));
+        g_rotation.x -= 5.0f;
+        update_model_matrix();
         set_model(g_program);
         break;
 
     case GLFW_KEY_S:
-        
-        g_model = glm::rotate(g_model,
-            glm::radians(5.0f),
-            glm::vec3(1.0f, 0.0f, 0.0f));
+        g_rotation.x += 5.0f;
+        update_model_matrix();
+        set_model(g_program);
+        break;
+
+        /* TRANSLATION */
+    case GLFW_KEY_Q:
+        g_position.x -= 0.1f;
+        update_model_matrix();
+        set_model(g_program);
+        break;
+
+    case GLFW_KEY_E:
+        g_position.x += 0.1f;
+        update_model_matrix();
+        set_model(g_program);
+        break;
+
+        /* SCALE */
+    case GLFW_KEY_Z:
+        g_scale *= 1.1f;
+        update_model_matrix();
+        set_model(g_program);
+        break;
+
+    case GLFW_KEY_C:
+        g_scale *= 0.9f;
+        update_model_matrix();
         set_model(g_program);
         break;
 
@@ -335,10 +376,14 @@ static void set_matrix(unsigned int program,
 /*
  * Set model matrix uniform.
  */
-static void set_model(unsigned int program)
-{
-    set_matrix(program, g_model, "u_model");
-}
+
+    
+    static void set_model(unsigned int program)
+    {
+        //upr 1 point 5 and 6
+        set_matrix(program, g_model, "u_model");
+    }
+
 
 /*
  * Set view matrix uniform.
@@ -603,7 +648,10 @@ static void init(void)
     /*
      * Set PVM matrix.
      */
+    //upr 1 
+    update_model_matrix();
     set_model(program);
+
     set_view(program);
     set_projection(program);
 
