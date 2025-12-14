@@ -183,7 +183,7 @@ static void glfw_error_callback(int error, const char* description)
             set_view(g_program);
             break;
 
-            /* CAMERA ORBIT AROUND OBJECT (Task 3) */
+            //upr 3
         case GLFW_KEY_O: // orbit left
         {
             float s = sin(orbit_angle);
@@ -196,7 +196,7 @@ static void glfw_error_callback(int error, const char* description)
             set_view(g_program);
             break;
         }
-
+        //upr 3
         case GLFW_KEY_P: // orbit right
         {
             float s = sin(-orbit_angle);
@@ -210,7 +210,7 @@ static void glfw_error_callback(int error, const char* description)
             break;
         }
 
-        case GLFW_KEY_I: // toggle projection
+        case GLFW_KEY_I: // upr 3
             if (g_projection_type == ProjectionType::Perspective)
                 g_projection_type = ProjectionType::Orthographic;
             else
@@ -219,6 +219,23 @@ static void glfw_error_callback(int error, const char* description)
             set_projection(g_program);
             break;
 
+        case GLFW_KEY_U: // move light up
+            g_light_pos.y += 0.1f;
+            glUseProgram(g_program);
+            set_light_pos(g_program);
+            break;
+
+        case GLFW_KEY_J: // move light down
+            g_light_pos.y -= 0.1f;
+            glUseProgram(g_program);
+            set_light_pos(g_program);
+            break;
+
+        case GLFW_KEY_K: // make light more red
+            g_light_color.r = std::min(g_light_color.r + 0.1f, 1.0f);
+            glUseProgram(g_program);
+            set_light_color(g_program);
+            break;
         default:
             break;
         }
@@ -645,8 +662,10 @@ static unsigned int init_texture(const std::string& path)
      * Texture wrapping and filtering.
      * Required.
      */
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //upr 4
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    //-----------
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -708,7 +727,8 @@ static void init(void)
 
     unsigned int vbo = init_vbo();
     unsigned int vao = init_vao();
-    unsigned int texture = init_texture("resources/textures/tu_white.png");
+    //upr 4
+    unsigned int texture = init_texture("resources/textures/tu_transparent.png");
 
     std::cout << "Data init check:" << std::endl;
     if (gl_print_error() != 0)
