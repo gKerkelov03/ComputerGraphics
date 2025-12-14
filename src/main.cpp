@@ -18,6 +18,9 @@ constexpr auto clear_color = glm::vec4(0.45f, 0.55f, 0.60f, 0.90f);
 /*
  * Globals. For convenience.
  */
+enum class ProjectionType { Perspective, Orthographic };
+static ProjectionType g_projection_type = ProjectionType::Perspective;
+
 static std::unordered_map<std::string, int> g_uniform_locations;
 static unsigned int g_program = 0;
 static glm::mat4 g_model = glm::mat4(
@@ -85,76 +88,140 @@ static void glfw_error_callback(int error, const char* description)
 /*
  * Window keypress event callback.
  */
-static void key_callback(GLFWwindow* window,
-                         int key,
-                         int scancode,
-                         int action,
-                         int mode)
-{
-    switch (key)
+
+    static void key_callback(GLFWwindow * window,
+        int key,
+        int scancode,
+        int action,
+        int mode)
     {
-    case GLFW_KEY_ESCAPE:
-        glfwSetWindowShouldClose(window, true);
-        break;
+        // Only react on key press, not release
+        if (action != GLFW_PRESS && action != GLFW_REPEAT)
+            return;
 
-    case GLFW_KEY_X:
-        gl_print_error();
-        break;
+        const float cam_speed = 0.1f;      // camera translation speed
+        const float orbit_angle = glm::radians(5.0f); // orbit rotation in radians
+        const float look_angle = glm::radians(5.0f);  // look rotation in radians
 
-        /* ROTATION */
-    case GLFW_KEY_A:
-        g_rotation.y -= 5.0f;
-        update_model_matrix();
-        set_model(g_program);
-        break;
+        switch (key)
+        {
+        case GLFW_KEY_ESCAPE:
+            glfwSetWindowShouldClose(window, true);
+            break;
 
-    case GLFW_KEY_D:
-        g_rotation.y += 5.0f;
-        update_model_matrix();
-        set_model(g_program);
-        break;
+        case GLFW_KEY_X:
+            gl_print_error();
+            break;
 
-    case GLFW_KEY_W:
-        g_rotation.x -= 5.0f;
-        update_model_matrix();
-        set_model(g_program);
-        break;
+            /* OBJECT TRANSFORMATION */
+        case GLFW_KEY_A:
+            g_rotation.y -= 5.0f;
+            update_model_matrix();
+            set_model(g_program);
+            break;
 
-    case GLFW_KEY_S:
-        g_rotation.x += 5.0f;
-        update_model_matrix();
-        set_model(g_program);
-        break;
+        case GLFW_KEY_D:
+            g_rotation.y += 5.0f;
+            update_model_matrix();
+            set_model(g_program);
+            break;
 
-        /* TRANSLATION */
-    case GLFW_KEY_Q:
-        g_position.x -= 0.1f;
-        update_model_matrix();
-        set_model(g_program);
-        break;
+        case GLFW_KEY_W:
+            g_rotation.x -= 5.0f;
+            update_model_matrix();
+            set_model(g_program);
+            break;
 
-    case GLFW_KEY_E:
-        g_position.x += 0.1f;
-        update_model_matrix();
-        set_model(g_program);
-        break;
+        case GLFW_KEY_S:
+            g_rotation.x += 5.0f;
+            update_model_matrix();
+            set_model(g_program);
+            break;
 
-        /* SCALE */
-    case GLFW_KEY_Z:
-        g_scale *= 1.1f;
-        update_model_matrix();
-        set_model(g_program);
-        break;
+        case GLFW_KEY_Q:
+            g_position.x -= 0.1f;
+            update_model_matrix();
+            set_model(g_program);
+            break;
 
-    case GLFW_KEY_C:
-        g_scale *= 0.9f;
-        update_model_matrix();
-        set_model(g_program);
-        break;
+        case GLFW_KEY_E:
+            g_position.x += 0.1f;
+            update_model_matrix();
+            set_model(g_program);
+            break;
 
-    default:
-        break;
-    }
+        case GLFW_KEY_Z:
+            g_scale *= 1.1f;
+            update_model_matrix();
+            set_model(g_program);
+            break;
+
+        case GLFW_KEY_C:
+            g_scale *= 0.9f;
+            update_model_matrix();
+            set_model(g_program);
+            break;
+
+            /* CAMERA LOOK (Task 2) */
+        case GLFW_KEY_LEFT:  // look left
+            cg::camera.center.x -= cam_speed;
+            set_view(g_program);
+            break;
+
+        case GLFW_KEY_RIGHT: // look right
+            cg::camera.center.x += cam_speed;
+            set_view(g_program);
+            break;
+
+        case GLFW_KEY_UP:    // look up
+            cg::camera.center.y += cam_speed;
+            set_view(g_program);
+            break;
+
+        case GLFW_KEY_DOWN:  // look down
+            cg::camera.center.y -= cam_speed;
+            set_view(g_program);
+            break;
+
+            /* CAMERA ORBIT AROUND OBJECT (Task 3) */
+        case GLFW_KEY_O: // orbit left
+        {
+            float s = sin(orbit_angle);
+            float c = cos(orbit_angle);
+            glm::vec3 eye = cg::camera.eye;
+
+            eye.x = c * eye.x + s * eye.z;
+            eye.z = -s * eye.x + c * eye.z;
+            cg::camera.eye = eye;
+            set_view(g_program);
+            break;
+        }
+
+        case GLFW_KEY_P: // orbit right
+        {
+            float s = sin(-orbit_angle);
+            float c = cos(-orbit_angle);
+            glm::vec3 eye = cg::camera.eye;
+
+            eye.x = c * eye.x + s * eye.z;
+            eye.z = -s * eye.x + c * eye.z;
+            cg::camera.eye = eye;
+            set_view(g_program);
+            break;
+        }
+
+        case GLFW_KEY_I: // toggle projection
+            if (g_projection_type == ProjectionType::Perspective)
+                g_projection_type = ProjectionType::Orthographic;
+            else
+                g_projection_type = ProjectionType::Perspective;
+
+            set_projection(g_program);
+            break;
+
+        default:
+            break;
+        }
 }
 
 /*
@@ -401,12 +468,26 @@ static void set_view(unsigned int program)
 /*
  * Set projection matrix uniform.
  */
+
+//upr 3
 static void set_projection(unsigned int program)
 {
-    glm::mat4 projection = glm::perspective(cg::perspective.fov,
-                                            cg::perspective.aspect,
-                                            cg::perspective.z_near,
-                                            cg::perspective.z_far);
+    glm::mat4 projection;
+
+    if (g_projection_type == ProjectionType::Perspective) {
+        projection = glm::perspective(cg::perspective.fov,
+            cg::perspective.aspect,
+            cg::perspective.z_near,
+            cg::perspective.z_far);
+    }
+    else { // Orthographic
+        float ortho_size = 2.0f; // adjust for zoom
+        float aspect = cg::perspective.aspect;
+        projection = glm::ortho(-ortho_size * aspect, ortho_size * aspect,
+            -ortho_size, ortho_size,
+            cg::perspective.z_near,
+            cg::perspective.z_far);
+    }
 
     set_matrix(program, projection, "u_projection");
 }
