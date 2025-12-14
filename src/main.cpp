@@ -30,7 +30,7 @@ static glm::mat4 g_model = glm::mat4(
 static glm::vec3 g_light_pos = glm::vec3(1.0f, 1.0f, 2.0f);
 static glm::vec3 g_light_color = glm::vec3(1.0f); /* White light */
 
-//upr 1 point 6
+//upr 2 point 6
 static glm::vec3 g_position = glm::vec3(0.0f, 0.0f, 0.0f);
 static glm::vec3 g_rotation = glm::vec3(0.0f, 0.0f, 0.0f); // degrees
 static glm::vec3 g_scale = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -44,7 +44,7 @@ static void set_projection(unsigned int);
 static void set_light_pos(unsigned int);
 static void set_light_color(unsigned int);
 
-//upr 1 point 5
+//upr 2 point 5
 
 
     static void update_model_matrix(void)
@@ -380,7 +380,7 @@ static void set_matrix(unsigned int program,
     
     static void set_model(unsigned int program)
     {
-        //upr 1 point 5 and 6
+        //upr 2 point 5 and 6
         set_matrix(program, g_model, "u_model");
     }
 
@@ -648,7 +648,7 @@ static void init(void)
     /*
      * Set PVM matrix.
      */
-    //upr 1 
+    //upr 2 
     update_model_matrix();
     set_model(program);
 
